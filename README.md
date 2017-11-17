@@ -1,3 +1,3 @@
 # varName 🐫🍢🐍
-Provides utility for converting length titles into condensed but still recognizable variable names
+Provides utility for converting lengthy titles into condensed but still recognizable variable names
 
