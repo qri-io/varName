@@ -1,4 +1,4 @@
-package camelName
+package varName
 
 import (
 	// "fmt"
