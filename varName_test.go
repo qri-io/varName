@@ -11,7 +11,7 @@ func TestMakeTableName(t *testing.T) {
 		output string
 	}{
 		{"220 BEA EconData Employment 2010-2015",
-			"BeaEconDataEmployment2010"},
+			"bea_econ_data_employment_2010"},
 	}
 
 	for i, c := range cases {

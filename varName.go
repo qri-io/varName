@@ -10,10 +10,18 @@ import (
 
 type TextAlignment int
 
+type NameCase int
+
 const (
 	Left TextAlignment = iota
 	Right
 	Edge
+)
+
+const (
+	Camel NameCase = iota
+	Snake
+	Kebab
 )
 
 var (
@@ -166,8 +174,8 @@ func TruncateList(wordList []string, maxLen int, alignment TextAlignment) []stri
 	return truncatedList
 }
 
-// ListToCamel processes a slice of words and rejoins them into a single string appropriate for a single-word variable name
-func ListToCamel(wordList []string, skipwords *map[string]bool, maxLen int, alignment TextAlignment, noRepeats bool) string {
+// ListToVarName processes a slice of words and rejoins them into a single string appropriate for a single-word variable name
+func ListToVarName(wordList []string, skipwords *map[string]bool, maxLen int, alignment TextAlignment, noRepeats bool, caseType NameCase) string {
 	// ensure skipwords are lower-cased
 	skipwordsLower := map[string]bool{}
 	for key := range *skipwords {
@@ -189,8 +197,19 @@ func ListToCamel(wordList []string, skipwords *map[string]bool, maxLen int, alig
 	}
 	// truncate filteredList
 	truncatedList := TruncateList(wordList, maxLen, alignment)
+	fmt.Println(truncatedList)
 	// join truncatedlist
-	return strings.Join(truncatedList, "")
+	switch caseType {
+	case Camel:
+		return strings.Join(truncatedList, "")
+	case Snake:
+		return strings.Trim(strings.ToLower(strings.Join(truncatedList, "_")), "_ ")
+	case Kebab:
+		return strings.Trim(strings.ToLower(strings.Join(truncatedList, "-")), "- ")
+	default:
+		return strings.Trim(strings.ToLower(strings.Join(truncatedList, "_")), "_ ")
+	}
+
 }
 
 // MakeTableNameParams is a convenience parameter struct made for MakeTableName
@@ -208,8 +227,10 @@ type MakeTableNameParams struct {
 	RemoveOnly bool
 	// if we should not allow words to occur repeated times, set to true
 	NoRepeats bool
-	// TODO
+	// a choice of Left, Right, or Edge specifies which region of the input to prioritize
 	Alignment TextAlignment
+	// a choice of Camel, Snake, or Kebab to determine the name-casing
+	NameCasing NameCase
 }
 
 func NewTableNameParams(name string) *MakeTableNameParams {
@@ -222,6 +243,7 @@ func NewTableNameParams(name string) *MakeTableNameParams {
 		RemoveOnly:    false,
 		NoRepeats:     true,
 		Alignment:     Left,
+		NameCasing:    Snake,
 	}
 }
 
@@ -234,9 +256,11 @@ func MakeTableName(p *MakeTableNameParams) string {
 	// split current string on Delim
 	wordList := strings.Split(s, p.Delim)
 	// filter, truncate, and rejoin
-	tableName := ListToCamel(wordList, p.SkipWords, p.MaxLen, p.Alignment, p.NoRepeats)
+	tableName := ListToVarName(wordList, p.SkipWords, p.MaxLen, p.Alignment, p.NoRepeats, p.NameCasing)
 	// remove any leading numbers
 	tableName = strings.TrimLeftFunc(tableName, isNumOrSpace)
+	// remove any extraneous underscores or dashes
+	tableName = strings.Trim(tableName, "_- ")
 	return tableName
 }
 
