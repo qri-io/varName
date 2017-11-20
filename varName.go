@@ -294,17 +294,3 @@ func MakeNameUnique(name string, existing *map[string]bool) string {
 	(*existing)[uniqueName] = true
 	return uniqueName
 }
-
-func main() {
-	testWord := "220 BEA EconData Employment 2010-2015"
-	existing := &map[string]bool{
-		"BeaEconDataEmployment2010":     true,
-		"BeaEconDataEmployment2010_2":   true,
-		"BeaEconDataEmployment2010_100": true,
-	}
-	newName := MakeTableName(NewTableNameParams(testWord))
-	fmt.Println(newName)
-	uniqueName := MakeNameUnique(newName, existing)
-	fmt.Println(uniqueName)
-
-}
