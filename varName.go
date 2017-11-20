@@ -131,7 +131,7 @@ func reverse(ss []string) []string {
 // Edge to truncate middle etc.)
 // TODO: should revisit this, if confusing, can refactor to spcify what you want to *cut*
 func TruncateList(wordList []string, maxLen int, alignment TextAlignment) []string {
-	listLen := len(wordList)
+	// listLen := len(wordList)
 	reversedList := reverse(wordList)
 	truncatedList := []string{}
 	//tailList := []string{}
@@ -142,17 +142,15 @@ func TruncateList(wordList []string, maxLen int, alignment TextAlignment) []stri
 		for i := range wordList {
 			h := wordList[i]
 			t := reversedList[i]
-			if len(head)+len(tail) >= listLen {
+			if len(h)+len(t)+charCount <= maxLen {
+				head = append(head, h)
+				tail = append(tail, t)
+				charCount += len(h) + len(t)
+			} else if len(h)+charCount <= maxLen {
+				head = append(head, h)
+				charCount += len(h)
+			} else {
 				break
-			}
-			if charCount+len(h)+len(t) > maxLen {
-				if charCount+len(h) > maxLen {
-					break
-				} else {
-					head = append(head, h)
-					tail = append(tail, t)
-					charCount += len(h) + len(t)
-				}
 			}
 		}
 		truncatedList = append(head, reverse(tail)...)
@@ -197,16 +195,22 @@ func ListToVarName(wordList []string, skipwords *map[string]bool, maxLen int, al
 	}
 	// truncate filteredList
 	truncatedList := TruncateList(wordList, maxLen, alignment)
-	fmt.Println(truncatedList)
 	// join truncatedlist
 	switch caseType {
 	case Camel:
-		return strings.Join(truncatedList, "")
-	case Snake:
-		return strings.Trim(strings.ToLower(strings.Join(truncatedList, "_")), "_ ")
+		//make camel case
+		camelCaseList := []string{}
+		for i, word := range truncatedList {
+			if i == 0 {
+				camelCaseList = append(camelCaseList, strings.ToLower(word))
+			} else {
+				camelCaseList = append(camelCaseList, strings.Title(word))
+			}
+		}
+		return strings.Join(camelCaseList, "")
 	case Kebab:
 		return strings.Trim(strings.ToLower(strings.Join(truncatedList, "-")), "- ")
-	default:
+	default: // (Snake)
 		return strings.Trim(strings.ToLower(strings.Join(truncatedList, "_")), "_ ")
 	}
 
@@ -293,18 +297,4 @@ func MakeNameUnique(name string, existing *map[string]bool) string {
 	uniqueName := fmt.Sprintf("%s_%d", baseName, highestNum+1)
 	(*existing)[uniqueName] = true
 	return uniqueName
-}
-
-func main() {
-	testWord := "220 BEA EconData Employment 2010-2015"
-	existing := &map[string]bool{
-		"BeaEconDataEmployment2010":     true,
-		"BeaEconDataEmployment2010_2":   true,
-		"BeaEconDataEmployment2010_100": true,
-	}
-	newName := MakeTableName(NewTableNameParams(testWord))
-	fmt.Println(newName)
-	uniqueName := MakeNameUnique(newName, existing)
-	fmt.Println(uniqueName)
-
 }
