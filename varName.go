@@ -131,7 +131,7 @@ func reverse(ss []string) []string {
 // Edge to truncate middle etc.)
 // TODO: should revisit this, if confusing, can refactor to spcify what you want to *cut*
 func TruncateList(wordList []string, maxLen int, alignment TextAlignment) []string {
-	listLen := len(wordList)
+	// listLen := len(wordList)
 	reversedList := reverse(wordList)
 	truncatedList := []string{}
 	//tailList := []string{}
@@ -142,17 +142,15 @@ func TruncateList(wordList []string, maxLen int, alignment TextAlignment) []stri
 		for i := range wordList {
 			h := wordList[i]
 			t := reversedList[i]
-			if len(head)+len(tail) >= listLen {
+			if len(h)+len(t)+charCount <= maxLen {
+				head = append(head, h)
+				tail = append(tail, t)
+				charCount += len(h) + len(t)
+			} else if len(h)+charCount <= maxLen {
+				head = append(head, h)
+				charCount += len(h)
+			} else {
 				break
-			}
-			if charCount+len(h)+len(t) > maxLen {
-				if charCount+len(h) > maxLen {
-					break
-				} else {
-					head = append(head, h)
-					tail = append(tail, t)
-					charCount += len(h) + len(t)
-				}
 			}
 		}
 		truncatedList = append(head, reverse(tail)...)
@@ -197,7 +195,6 @@ func ListToVarName(wordList []string, skipwords *map[string]bool, maxLen int, al
 	}
 	// truncate filteredList
 	truncatedList := TruncateList(wordList, maxLen, alignment)
-	fmt.Println(truncatedList)
 	// join truncatedlist
 	switch caseType {
 	case Camel:
