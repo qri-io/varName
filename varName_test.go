@@ -7,15 +7,51 @@ import (
 
 func TestMakeTableName(t *testing.T) {
 	cases := []struct {
-		input  string
+		input  *MakeTableNameParams
 		output string
 	}{
-		{"220 BEA EconData Employment 2010-2015",
+		{NewTableNameParams("220 BEA EconData Employment 2010-2015"),
 			"bea_econ_data_employment_2010"},
+		{&MakeTableNameParams{
+			InputName:     "220 BEA EconData Employment 2010-2015",
+			SkipWords:     &defaultSkipwords,
+			Substitutions: &defaultSubstitutions,
+			Delim:         " ",
+			MaxLen:        20,
+			RemoveOnly:    false,
+			NoRepeats:     true,
+			Alignment:     Right,
+			NameCasing:    Kebab,
+		},
+			"employment-2010-2015"},
+		{&MakeTableNameParams{
+			InputName:     "220 BEA ===EconData Employment 2010-2015",
+			SkipWords:     &defaultSkipwords,
+			Substitutions: &defaultSubstitutions,
+			Delim:         " ",
+			MaxLen:        25,
+			RemoveOnly:    true,
+			NoRepeats:     true,
+			Alignment:     Edge,
+			NameCasing:    Camel,
+		},
+			"BeaEmployment20102015"},
+		{&MakeTableNameParams{
+			InputName:     "aaa bbb ccc ddd",
+			SkipWords:     &defaultSkipwords,
+			Substitutions: &defaultSubstitutions,
+			Delim:         " ",
+			MaxLen:        9,
+			RemoveOnly:    true,
+			NoRepeats:     true,
+			Alignment:     Edge,
+			NameCasing:    Camel,
+		},
+			"aaaBbbDdd"},
 	}
 
 	for i, c := range cases {
-		p := NewTableNameParams(c.input)
+		p := c.input
 		got := MakeTableName(p)
 		if c.output != got {
 			t.Errorf("case %d error mismatch: expected %s, got %s", i, c.output, got)
@@ -40,6 +76,10 @@ func TestMakeNameUnique(t *testing.T) {
 		{"BeaEconDataEmployment2010",
 			existing1,
 			"BeaEconDataEmployment2010_101"},
+		{"newName",
+			existing1,
+			"newName",
+		},
 	}
 
 	for i, c := range cases {

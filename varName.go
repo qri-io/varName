@@ -198,12 +198,19 @@ func ListToVarName(wordList []string, skipwords *map[string]bool, maxLen int, al
 	// join truncatedlist
 	switch caseType {
 	case Camel:
-		return strings.Join(truncatedList, "")
-	case Snake:
-		return strings.Trim(strings.ToLower(strings.Join(truncatedList, "_")), "_ ")
+		//make camel case
+		camelCaseList := []string{}
+		for i, word := range truncatedList {
+			if i == 0 {
+				camelCaseList = append(camelCaseList, strings.ToLower(word))
+			} else {
+				camelCaseList = append(camelCaseList, strings.Title(word))
+			}
+		}
+		return strings.Join(camelCaseList, "")
 	case Kebab:
 		return strings.Trim(strings.ToLower(strings.Join(truncatedList, "-")), "- ")
-	default:
+	default: // (Snake)
 		return strings.Trim(strings.ToLower(strings.Join(truncatedList, "_")), "_ ")
 	}
 
