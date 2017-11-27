@@ -272,29 +272,37 @@ func MakeTableName(p *MakeTableNameParams) string {
 // returns a unique name by appending an underscore and number to the end
 // Each time the function generates a new name, the name is added to hte existing map
 func MakeNameUnique(name string, existing *map[string]bool) string {
-	if !(*existing)[name] {
-		return name
-	}
 	// break name into base and suffix
-	baseName := numberedNamePattern.ReplaceAllString(name, "")
-	highestNum := 2
+	baseName := numberedNamePattern.ReplaceAllString(name, "$1")
+	isUnique := true
+	if (*existing)[name] || (*existing)[baseName] {
+		isUnique = false
+	}
+	highestNum := 1
 	for existingName := range *existing {
 		matches := numberedNamePattern.FindStringSubmatch(existingName)
+
 		// Note we expect a slice of len=3 b/c there are 2 capturing groups in
 		// this pattern -- /(.*)_(\d+)$/ -- abc_123 -> [abc_123, abc, 123]
 		if len(matches) == 3 {
-			numStr := matches[len(matches)-1]
-			// convert to int if possible
-			i, err := strconv.Atoi(numStr)
-			if err == nil {
-				// if higher then highestNum, update
-				if i > highestNum {
-					highestNum = i
+			if matches[1] == baseName {
+				isUnique = false
+				numStr := matches[2]
+				// convert to int if possible
+				i, err := strconv.Atoi(numStr)
+				if err == nil {
+					// if higher then highestNum, update
+					if i > highestNum {
+						highestNum = i
+					}
 				}
 			}
 		}
 	}
 	uniqueName := fmt.Sprintf("%s_%d", baseName, highestNum+1)
+	if isUnique {
+		uniqueName = name
+	}
 	(*existing)[uniqueName] = true
 	return uniqueName
 }

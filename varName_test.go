@@ -66,6 +66,8 @@ func TestMakeNameUnique(t *testing.T) {
 		"BeaEconDataEmployment2010":     true,
 		"BeaEconDataEmployment2010_2":   true,
 		"BeaEconDataEmployment2010_100": true,
+		"testDataNoSuffix":              true,
+		"testDataWithSuffix_2":          true,
 	}
 
 	cases := []struct {
@@ -78,8 +80,16 @@ func TestMakeNameUnique(t *testing.T) {
 			"BeaEconDataEmployment2010_101"},
 		{"newName",
 			existing1,
-			"newName",
-		},
+			"newName"},
+		{"testDataNoSuffix",
+			existing1,
+			"testDataNoSuffix_2"},
+		{"testDataWithSuffix_2",
+			existing1,
+			"testDataWithSuffix_3"},
+		{"testDataWithSuffix",
+			existing1,
+			"testDataWithSuffix_4"},
 	}
 
 	for i, c := range cases {
