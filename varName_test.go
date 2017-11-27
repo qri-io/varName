@@ -7,12 +7,12 @@ import (
 
 func TestCreateVarNameFromParams(t *testing.T) {
 	cases := []struct {
-		input  *VarNameParams
+		input  *NameParams
 		output string
 	}{
-		{NewVarNameParams("220 BEA EconData Employment 2010-2015"),
+		{NewNameParams("220 BEA EconData Employment 2010-2015"),
 			"bea_econ_data_employment_2010"},
-		{&VarNameParams{
+		{&NameParams{
 			InputName:     "220 BEA EconData Employment 2010-2015",
 			SkipWords:     &defaultSkipwords,
 			Substitutions: &defaultSubstitutions,
@@ -24,7 +24,7 @@ func TestCreateVarNameFromParams(t *testing.T) {
 			NameCasing:    Kebab,
 		},
 			"employment-2010-2015"},
-		{&VarNameParams{
+		{&NameParams{
 			InputName:     "220 BEA ===EconData Employment 2010-2015",
 			SkipWords:     &defaultSkipwords,
 			Substitutions: &defaultSubstitutions,
@@ -36,7 +36,7 @@ func TestCreateVarNameFromParams(t *testing.T) {
 			NameCasing:    Camel,
 		},
 			"BeaEmployment20102015"},
-		{&VarNameParams{
+		{&NameParams{
 			InputName:     "aaa bbb ccc ddd",
 			SkipWords:     &defaultSkipwords,
 			Substitutions: &defaultSubstitutions,

@@ -224,8 +224,8 @@ func listToVarName(wordList []string, skipwords *map[string]bool, maxLen int, al
 
 }
 
-// VarNameParams is a convenience parameter struct made for CreateVarNameFromParams
-type VarNameParams struct {
+// NameParams is a convenience parameter struct made for CreateVarNameFromParams
+type NameParams struct {
 	InputName string
 	// dictionary of strings to filter out
 	SkipWords *map[string]bool
@@ -245,8 +245,10 @@ type VarNameParams struct {
 	NameCasing NameCase
 }
 
-func NewVarNameParams(name string) *VarNameParams {
-	return &VarNameParams{
+// NewNameParams creates a pointer to a new NameParams struct and
+// populates it with a set of default options
+func NewNameParams(name string) *NameParams {
+	return &NameParams{
 		InputName:     name,
 		SkipWords:     &defaultSkipwords,
 		Substitutions: &defaultSubstitutions,
@@ -261,7 +263,7 @@ func NewVarNameParams(name string) *VarNameParams {
 
 // CreateVarNameFromParams takes a lengthy title string and attempts to generate a
 // condensed but still recognizable variable name
-func CreateVarNameFromParams(p *VarNameParams) string {
+func CreateVarNameFromParams(p *NameParams) string {
 	s := p.InputName
 	s = parseExistingCamelDelim(s)
 	s = remapChars(s, p.Substitutions, p.RemoveOnly)
@@ -279,7 +281,7 @@ func CreateVarNameFromParams(p *VarNameParams) string {
 // CreateVarNameFromString does the same as CreateVarNameFromParams but
 // uses a setof defualt settings and only reuires a string as an input
 func CreateVarNameFromString(s string) string {
-	p := NewVarNameParams(s)
+	p := NewNameParams(s)
 	return CreateVarNameFromParams(p)
 }
 
