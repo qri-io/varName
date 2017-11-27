@@ -8,19 +8,27 @@ import (
 	"unicode"
 )
 
+// TextAlignment refers to which section of text we want to prioritize
 type TextAlignment int
 
+// NameCase refers to one of a set of casing schemes such as camel, snake, kebab
 type NameCase int
 
 const (
+	// Left keeps left-most text and truncates anything after a specified limit is exceeded
 	Left TextAlignment = iota
+	// Right keeps right-most text and truncates anything after a specified limit is exceeded
 	Right
+	// Edge keeps outer text and truncates any interior text after a specified limit is exceeded
 	Edge
 )
 
 const (
+	// Camel refers to camel case; eg. somethingCamelCased
 	Camel NameCase = iota
+	// Snake refers to snake case; eg. something_snake_cased
 	Snake
+	// Kebab refers to kebab case; eg. something-kebab-cased
 	Kebab
 )
 
@@ -89,10 +97,10 @@ func isNumOrSpace(c rune) bool {
 	return unicode.IsSpace(c) || unicode.IsNumber(c)
 }
 
-// ParseExistingCamelDelim takes a string
+// parseExistingCamelDelim takes a string
 // such as     "EconIndicatorNominalGDP1997China"
 // and outputs "Econ Indicator Nominal Gdp 1997 China"
-func ParseExistingCamelDelim(s string) string {
+func parseExistingCamelDelim(s string) string {
 	// convert multicaps to single caps
 	s = convertMultiCapsToSingleCaps(s)
 	// interpret camelCase as space
@@ -102,9 +110,9 @@ func ParseExistingCamelDelim(s string) string {
 	return s
 }
 
-// RemapChars iterates through a map of stubstitutions replacing any present characters in s
+// remapChars iterates through a map of stubstitutions replacing any present characters in s
 // accordingly.  the removeOnly option allows you to override the mapping to remap to an empty string ""
-func RemapChars(s string, substitutions *map[string]string, removeOnly bool) string {
+func remapChars(s string, substitutions *map[string]string, removeOnly bool) string {
 	for origVal, replVal := range *substitutions {
 		if removeOnly {
 			replVal = ""
@@ -124,13 +132,13 @@ func reverse(ss []string) []string {
 	return reversed
 }
 
-// TruncateList takes a slice of strings and allows you to truncate
+// truncateList takes a slice of strings and allows you to truncate
 // either the left fright or middle of the list to satisfy a maximum combined
 // string length, maxLen.  Function currently accpets parameters indidating
 // which portion of the list you want to *keep* (Left to keep left, truncate right,
 // Edge to truncate middle etc.)
 // TODO: should revisit this, if confusing, can refactor to spcify what you want to *cut*
-func TruncateList(wordList []string, maxLen int, alignment TextAlignment) []string {
+func truncateList(wordList []string, maxLen int, alignment TextAlignment) []string {
 	// listLen := len(wordList)
 	reversedList := reverse(wordList)
 	truncatedList := []string{}
@@ -172,8 +180,8 @@ func TruncateList(wordList []string, maxLen int, alignment TextAlignment) []stri
 	return truncatedList
 }
 
-// ListToVarName processes a slice of words and rejoins them into a single string appropriate for a single-word variable name
-func ListToVarName(wordList []string, skipwords *map[string]bool, maxLen int, alignment TextAlignment, noRepeats bool, caseType NameCase) string {
+// listToVarName processes a slice of words and rejoins them into a single string appropriate for a single-word variable name
+func listToVarName(wordList []string, skipwords *map[string]bool, maxLen int, alignment TextAlignment, noRepeats bool, caseType NameCase) string {
 	// ensure skipwords are lower-cased
 	skipwordsLower := map[string]bool{}
 	for key := range *skipwords {
@@ -194,7 +202,7 @@ func ListToVarName(wordList []string, skipwords *map[string]bool, maxLen int, al
 		}
 	}
 	// truncate filteredList
-	truncatedList := TruncateList(wordList, maxLen, alignment)
+	truncatedList := truncateList(wordList, maxLen, alignment)
 	// join truncatedlist
 	switch caseType {
 	case Camel:
@@ -216,8 +224,8 @@ func ListToVarName(wordList []string, skipwords *map[string]bool, maxLen int, al
 
 }
 
-// MakeTableNameParams is a convenience parameter struct made for MakeTableName
-type MakeTableNameParams struct {
+// VarNameParams is a convenience parameter struct made for CreateVarNameFromParams
+type VarNameParams struct {
 	InputName string
 	// dictionary of strings to filter out
 	SkipWords *map[string]bool
@@ -237,8 +245,8 @@ type MakeTableNameParams struct {
 	NameCasing NameCase
 }
 
-func NewTableNameParams(name string) *MakeTableNameParams {
-	return &MakeTableNameParams{
+func NewVarNameParams(name string) *VarNameParams {
+	return &VarNameParams{
 		InputName:     name,
 		SkipWords:     &defaultSkipwords,
 		Substitutions: &defaultSubstitutions,
@@ -251,21 +259,28 @@ func NewTableNameParams(name string) *MakeTableNameParams {
 	}
 }
 
-// MakeTableName takes a lengthy title string and attempts to generate a
+// CreateVarNameFromParams takes a lengthy title string and attempts to generate a
 // condensed but still recognizable variable name
-func MakeTableName(p *MakeTableNameParams) string {
+func CreateVarNameFromParams(p *VarNameParams) string {
 	s := p.InputName
-	s = ParseExistingCamelDelim(s)
-	s = RemapChars(s, p.Substitutions, p.RemoveOnly)
+	s = parseExistingCamelDelim(s)
+	s = remapChars(s, p.Substitutions, p.RemoveOnly)
 	// split current string on Delim
 	wordList := strings.Split(s, p.Delim)
 	// filter, truncate, and rejoin
-	tableName := ListToVarName(wordList, p.SkipWords, p.MaxLen, p.Alignment, p.NoRepeats, p.NameCasing)
+	tableName := listToVarName(wordList, p.SkipWords, p.MaxLen, p.Alignment, p.NoRepeats, p.NameCasing)
 	// remove any leading numbers
 	tableName = strings.TrimLeftFunc(tableName, isNumOrSpace)
 	// remove any extraneous underscores or dashes
 	tableName = strings.Trim(tableName, "_- ")
 	return tableName
+}
+
+// CreateVarNameFromString does the same as CreateVarNameFromParams but
+// uses a setof defualt settings and only reuires a string as an input
+func CreateVarNameFromString(s string) string {
+	p := NewVarNameParams(s)
+	return CreateVarNameFromParams(p)
 }
 
 // MakeNameUnique takes a name, evaluates it against a set of existing names and
