@@ -35,13 +35,13 @@ jobs:
       #       go get -v -u
       #       github.com/whyrusleeping/gx 
       #       github.com/whyrusleeping/gx-go
-      - run:
-          name: Install gx deps
-          command: >
-            # go get github.com/ipfs/go-ipfs &&
-            # cd /go/src/github.com/ipfs/go-ipfs &&
-            # gx install &&
-            cd /go/src/github.com/qri-io/varName
+      # - run:
+      #     name: Install gx deps
+      #     command: >
+      #       go get github.com/ipfs/go-ipfs &&
+      #       cd /go/src/github.com/ipfs/go-ipfs &&
+      #       gx install &&
+      #       cd /go/src/github.com/qri-io/varName
       # - run:
       #     name: Install gx-dependant packages
       #     command: >
@@ -53,16 +53,16 @@ jobs:
       #     key: dependency-cache-{{ checksum "/go/src/github.com/ipfs/go-ipfs/package.json" }}
       #     paths:
       #       - /go/src/gx/
-      - run:
-          name: Run Tests
-          command: |
-            trap "go-junit-report <${TEST_RESULTS}/go-test.out > ${TEST_RESULTS}/go-test-report.xml" EXIT
-            ./.circleci/cover.test.sh | tee ${TEST_RESULTS}/go-test.out
+      # - run:
+      #     name: Run Tests
+      #     command: |
+      #       trap "go-junit-report <${TEST_RESULTS}/go-test.out > ${TEST_RESULTS}/go-test-report.xml" EXIT
+      #       ./.circleci/cover.test.sh | tee ${TEST_RESULTS}/go-test.out
       - run:
           name: Publish coverage info to codecov.io
           command: bash <(curl -s https://codecov.io/bash)
-      - store_artifacts:
-          path: /tmp/test-results
-          destination: raw-test-output
-      - store_test_results:
-          path: /tmp/test-results
+      # - store_artifacts:
+      #     path: /tmp/test-results
+      #     destination: raw-test-output
+      # - store_test_results:
+      #     path: /tmp/test-results
