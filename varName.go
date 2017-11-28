@@ -134,7 +134,7 @@ func reverse(ss []string) []string {
 
 // truncateList takes a slice of strings and allows you to truncate
 // either the left fright or middle of the list to satisfy a maximum combined
-// string length, maxLen.  Function currently accpets parameters indidating
+// string length, maxLen.  Function currently accepts parameters indidating
 // which portion of the list you want to *keep* (Left to keep left, truncate right,
 // Edge to truncate middle etc.)
 // TODO: should revisit this, if confusing, can refactor to spcify what you want to *cut*
@@ -279,7 +279,7 @@ func CreateVarNameFromParams(p *NameParams) string {
 }
 
 // CreateVarNameFromString does the same as CreateVarNameFromParams but
-// uses a setof defualt settings and only reuires a string as an input
+// uses a set of default settings and only reuires a string as an input
 func CreateVarNameFromString(s string) string {
 	p := NewNameParams(s)
 	return CreateVarNameFromParams(p)
@@ -287,7 +287,7 @@ func CreateVarNameFromString(s string) string {
 
 // MakeNameUnique takes a name, evaluates it against a set of existing names and
 // returns a unique name by appending an underscore and number to the end
-// Each time the function generates a new name, the name is added to hte existing map
+// Each time the function generates a new name, the name is added to the existing map
 func MakeNameUnique(name string, existing *map[string]bool) string {
 	// break name into base and suffix
 	baseName := numberedNamePattern.ReplaceAllString(name, "$1")
