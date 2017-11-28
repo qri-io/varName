@@ -14,16 +14,10 @@ jobs:
       - run: mkdir -p $TEST_RESULTS
       - run: go get github.com/jstemmer/go-junit-report github.com/golang/lint/golint
       - run:
-          name: Install non-gx deps
+          name: Install deps
           command: >
             go get -v -d -u
             github.com/jstemmer/go-junit-report 
-            # github.com/ipfs/go-datastore
-            # github.com/jbenet/go-base58
-            # github.com/multiformats/go-multihash
-            # github.com/qri-io/compare
-            # github.com/datatogether/cdxj
-            # github.com/sergi/go-diff/diffmatchpatch
       - run: 
           name: Run Lint Tests
           command: golint ./...
@@ -53,11 +47,11 @@ jobs:
       #     key: dependency-cache-{{ checksum "/go/src/github.com/ipfs/go-ipfs/package.json" }}
       #     paths:
       #       - /go/src/gx/
-      # - run:
-      #     name: Run Tests
-      #     command: |
-      #       trap "go-junit-report <${TEST_RESULTS}/go-test.out > ${TEST_RESULTS}/go-test-report.xml" EXIT
-      #       ./.circleci/cover.test.sh | tee ${TEST_RESULTS}/go-test.out
+      - run:
+          name: Run Tests
+          command: |
+            trap "go-junit-report <${TEST_RESULTS}/go-test.out > ${TEST_RESULTS}/go-test-report.xml" EXIT
+            ./.circleci/cover.test.sh | tee ${TEST_RESULTS}/go-test.out
       - run:
           name: Publish coverage info to codecov.io
           command: bash <(curl -s https://codecov.io/bash)
