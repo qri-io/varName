@@ -5,14 +5,14 @@ import (
 	"testing"
 )
 
-func TestMakeTableName(t *testing.T) {
+func TestCreateVarNameFromParams(t *testing.T) {
 	cases := []struct {
-		input  *MakeTableNameParams
+		input  *NameParams
 		output string
 	}{
-		{NewTableNameParams("220 BEA EconData Employment 2010-2015"),
+		{NewNameParams("220 BEA EconData Employment 2010-2015"),
 			"bea_econ_data_employment_2010"},
-		{&MakeTableNameParams{
+		{&NameParams{
 			InputName:     "220 BEA EconData Employment 2010-2015",
 			SkipWords:     &defaultSkipwords,
 			Substitutions: &defaultSubstitutions,
@@ -24,7 +24,7 @@ func TestMakeTableName(t *testing.T) {
 			NameCasing:    Kebab,
 		},
 			"employment-2010-2015"},
-		{&MakeTableNameParams{
+		{&NameParams{
 			InputName:     "220 BEA ===EconData Employment 2010-2015",
 			SkipWords:     &defaultSkipwords,
 			Substitutions: &defaultSubstitutions,
@@ -36,7 +36,7 @@ func TestMakeTableName(t *testing.T) {
 			NameCasing:    Camel,
 		},
 			"BeaEmployment20102015"},
-		{&MakeTableNameParams{
+		{&NameParams{
 			InputName:     "aaa bbb ccc ddd",
 			SkipWords:     &defaultSkipwords,
 			Substitutions: &defaultSubstitutions,
@@ -52,13 +52,28 @@ func TestMakeTableName(t *testing.T) {
 
 	for i, c := range cases {
 		p := c.input
-		got := MakeTableName(p)
+		got := CreateVarNameFromParams(p)
 		if c.output != got {
 			t.Errorf("case %d error mismatch: expected %s, got %s", i, c.output, got)
 			continue
 		}
 	}
+}
 
+func TestCreateVarNameFromString(t *testing.T) {
+	cases := []struct {
+		input  string
+		output string
+	}{
+		{"220 BEA EconData Employment 2010-2015", "bea_econ_data_employment_2010"},
+	}
+	for i, c := range cases {
+		got := CreateVarNameFromString(c.input)
+		if c.output != got {
+			t.Errorf("case %d error mismatch: expected %s, got %s", i, c.output, got)
+			continue
+		}
+	}
 }
 
 func TestMakeNameUnique(t *testing.T) {
